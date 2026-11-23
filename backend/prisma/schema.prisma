@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  role         String        // STUDENT, FACULTY, ADMIN
+  avatar       String?
+  departmentId String?
+  department   Department?   @relation(fields: [departmentId], references: [id])
+  projects     Project[]
+  bookingRequests BookingRequest[]
+  bookings     Booking[]
+  notifications Notification[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Department {
+  id           String       @id @default(cuid())
+  code         String       @unique
+  name         String
+  description  String?
+  icon         String?
+  laboratories Laboratory[]
+  equipment    Equipment[]
+  users        User[]
+  projects     Project[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Laboratory {
+  id             String       @id @default(cuid())
+  name           String
+  roomNumber     String
+  departmentId   String
+  department     Department   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  operatingHours String       @default("08:00 - 18:00")
+  equipment      Equipment[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model EquipmentCategory {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  slug        String      @unique
+  description String?
+  icon        String?
+  equipment   Equipment[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Equipment {
+  id                   String                 @id @default(cuid())
+  equipmentCode        String                 @unique
+  name                 String
+  categoryId           String
+  category             EquipmentCategory      @relation(fields: [categoryId], references: [id])
+  departmentId         String
+  department           Department             @relation(fields: [departmentId], references: [id])
+  laboratoryId         String
+  laboratory           Laboratory             @relation(fields: [laboratoryId], references: [id])
+  description          String
+  specifications       String                 // JSON or markdown specs
+  status               String                 @default("AVAILABLE") // AVAILABLE, IN_USE, MAINTENANCE, RESERVED
+  maxDurationHours     Int                    @default(4)
+  requiresApproval     Boolean                @default(true)
+  modelNumber          String?
+  iconSvg              String?
+  bookingRequests      BookingRequest[]
+  bookings             Booking[]
+  availabilitySchedules AvailabilitySchedule[]
+  maintenanceSchedules MaintenanceSchedule[]
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+}
+
+model Project {
+  id              String           @id @default(cuid())
+  title           String
+  description     String
+  category        String
+  departmentId    String
+  department      Department       @relation(fields: [departmentId], references: [id])
+  studentId       String
+  student         User             @relation(fields: [studentId], references: [id])
+  deadline        DateTime
+  techStack       String?
+  bookingRequests BookingRequest[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model BookingRequest {
+  id                    String                    @id @default(cuid())
+  projectId             String
+  project               Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  equipmentId           String
+  equipment             Equipment                 @relation(fields: [equipmentId], references: [id])
+  studentId             String
+  student               User                      @relation(fields: [studentId], references: [id])
+  requestedDate         DateTime
+  startTime             String                    // "09:00"
+  endTime               String                    // "12:00"
+  durationMinutes       Int
+  projectDeadline       DateTime
+  technicalRequirements String?
+  accessReason          String
+  status                String                    @default("PENDING") // PENDING, APPROVED, REJECTED, CONFLICT_DETECTED, ALTERNATIVE_SUGGESTED, CANCELLED, COMPLETED
+  priorityScore         Float?
+  facultyNotes          String?
+  rejectionReason       String?
+  conflictGroupId       String?
+  booking               Booking?
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+}
+
+model Booking {
+  id               String         @id @default(cuid())
+  bookingRequestId String         @unique
+  bookingRequest   BookingRequest @relation(fields: [bookingRequestId], references: [id], onDelete: Cascade)
+  equipmentId      String
+  equipment        Equipment      @relation(fields: [equipmentId], references: [id])
+  studentId        String
+  student          User           @relation(fields: [studentId], references: [id])
+  scheduledDate    DateTime
+  startTime        String
+  endTime          String
+  status           String         @default("ACTIVE") // ACTIVE, CANCELLED, COMPLETED
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model AvailabilitySchedule {
+  id          String    @id @default(cuid())
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  dayOfWeek   Int       // 0 = Sunday, 1 = Monday, ... 6 = Saturday
+  openTime    String    @default("08:00")
+  closeTime   String    @default("18:00")
+  isAvailable Boolean   @default(true)
+}
+
+model MaintenanceSchedule {
+  id          String    @id @default(cuid())
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  title       String
+  reason      String
+  startDate   DateTime
+  endDate     DateTime
+  status      String    @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model AllocationRecommendation {
+  id                      String    @id @default(cuid())
+  conflictGroupId         String    @unique
+  equipmentId             String
+  winningRequestId        String
+  recommendedDate         DateTime
+  recommendedStartTime    String
+  recommendedEndTime      String
+  priorityScoreBreakdown  String    // JSON string: { deadlineUrgency, compatibility, waitingTime, fairness, feasibility, total }
+  fairnessScore           Float
+  aiExplanation           String    // Generated comprehensive rationale
+  alternativeOptionsJson  String    // JSON string array of alternative slot/equipment proposals
+  status                  String    @default("PENDING_REVIEW") // PENDING_REVIEW, ACCEPTED, REJECTED
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   // SUBMISSION, APPROVAL, REJECTION, CONFLICT, ALTERNATIVE, CANCELLATION, MAINTENANCE
+  linkUrl   String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  entityType String
+  entityId   String?
+  actorName  String
+  actorRole  String
+  details    String?
+  createdAt  DateTime @default(now())
+}
+
+model SchedulingWeightConfig {
+  id                  String   @id @default("default-config")
+  deadlineWeight      Float    @default(0.35)
+  compatibilityWeight Float    @default(0.25)
+  waitingTimeWeight   Float    @default(0.15)
+  fairnessWeight      Float    @default(0.15)
+  feasibilityWeight   Float    @default(0.10)
+  updatedAt           DateTime @updatedAt
+}

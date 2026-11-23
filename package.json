@@ -1,0 +1,28 @@
+{
+  "name": "lablink",
+  "version": "1.0.0",
+  "description": "Making College Laboratories More Accessible - GenAI-powered campus laboratory resource-sharing platform",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "seed": "cd backend && npm run seed",
+    "check-size": "node scripts/check-repo-size.js"
+  },
+  "keywords": [
+    "lablink",
+    "campus",
+    "laboratory",
+    "resource-sharing",
+    "scheduling",
+    "ai"
+  ],
+  "author": "LabLink Team",
+  "license": "MIT"
+}
