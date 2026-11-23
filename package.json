@@ -13,6 +13,8 @@
     "test:backend": "cd backend && npm test",
     "test:frontend": "cd frontend && npm test",
     "seed": "cd backend && npm run seed",
+    "start": "node backend/dist/index.js",
+    "deploy:build": "npm run build && npm run seed",
     "check-size": "node scripts/check-repo-size.js"
   },
   "keywords": [

@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { securityHeaders } from './middleware/security.js';
 import { apiRateLimiter, aiRateLimiter, bookingRateLimiter } from './middleware/rateLimiter.js';
 import equipmentRoutes from './routes/equipment.routes.js';
@@ -82,5 +85,28 @@ app.use('/api/ai', aiRoutes);
 
 // Centralized error handler
 app.use(errorHandler);
+
+// Production static asset serving for unified single-port deployment
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const possibleDistPaths = [
+  path.resolve(__dirname, '../../../frontend/dist'),
+  path.resolve(__dirname, '../../frontend/dist'),
+  path.resolve(__dirname, '../frontend/dist'),
+];
+
+for (const candidatePath of possibleDistPaths) {
+  if (fs.existsSync(candidatePath)) {
+    app.use(express.static(candidatePath));
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api')) {
+        return next();
+      }
+      res.sendFile(path.join(candidatePath, 'index.html'));
+    });
+    break;
+  }
+}
 
 export default app;
