@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
 import { api } from '../services/api';
 import { Equipment, Project } from '../types';
@@ -11,11 +11,14 @@ import {
   Sparkles,
   CheckCircle2,
   FolderPlus,
+  Brain,
 } from 'lucide-react';
 
 export const BookingRequestPage: React.FC = () => {
   const { equipmentId: paramEquipId } = useParams<{ equipmentId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const prefill = (location.state as any) || {};
   const { currentUser } = useRole();
 
   const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
@@ -31,8 +34,12 @@ export const BookingRequestPage: React.FC = () => {
   const [projectDeadline, setProjectDeadline] = useState<string>(
     new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   );
-  const [technicalRequirements, setTechnicalRequirements] = useState<string>('');
-  const [accessReason, setAccessReason] = useState<string>('');
+  const [technicalRequirements, setTechnicalRequirements] = useState<string>(
+    prefill.prefilledTechnicalRequirements || ''
+  );
+  const [accessReason, setAccessReason] = useState<string>(
+    prefill.prefilledAccessReason || ''
+  );
 
   // State
   const [loading, setLoading] = useState<boolean>(true);
@@ -50,7 +57,15 @@ export const BookingRequestPage: React.FC = () => {
       .then(([equips, projs]) => {
         setEquipmentList(equips);
         setProjects(projs);
-        if (!selectedEquipmentId && equips.length > 0) {
+        if (!selectedEquipmentId && prefill.suggestedEquipment && prefill.suggestedEquipment.length > 0) {
+          const firstSugName = prefill.suggestedEquipment[0].name.toLowerCase();
+          const match = equips.find(e => firstSugName.includes(e.name.toLowerCase()) || e.name.toLowerCase().includes(firstSugName.split(' ')[0]));
+          if (match) {
+            setSelectedEquipmentId(match.id);
+          } else if (equips.length > 0) {
+            setSelectedEquipmentId(equips[0].id);
+          }
+        } else if (!selectedEquipmentId && equips.length > 0) {
           setSelectedEquipmentId(equips[0].id);
         }
         if (projs.length > 0) {

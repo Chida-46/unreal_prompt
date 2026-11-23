@@ -4,6 +4,8 @@ import { api } from '../services/api';
 import { Equipment, BookingRequest, Booking, Project } from '../types';
 import { StatCard } from '../components/StatCard';
 import { StatusBadge } from '../components/StatusBadge';
+import { AIProjectAnalyzer } from '../components/AIProjectAnalyzer';
+import { AIAssistantChat } from '../components/AIAssistantChat';
 import {
   Calendar,
   Clock,
@@ -154,9 +156,12 @@ export const StudentDashboard: React.FC = () => {
         />
       </div>
 
+      {/* Feature 1: AI Project Requirement Analyzer */}
+      <AIProjectAnalyzer />
+
       {/* Main Content Grid: Recent Requests & Active Bookings */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: My Requests & Approvals */}
+        {/* Left Column: My Requests, Approvals & Conversational AI Assistant */}
         <div className="lg:col-span-8 space-y-6">
           <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
             <div className="p-5 border-b border-slate-100 flex items-center justify-between">
@@ -218,6 +223,9 @@ export const StudentDashboard: React.FC = () => {
               )}
             </div>
           </div>
+
+          {/* Feature 2: Conversational AI Equipment Recommendation Assistant */}
+          <AIAssistantChat />
         </div>
 
         {/* Right Column: Quick Actions & Projects */}

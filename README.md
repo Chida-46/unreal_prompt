@@ -1,8 +1,9 @@
 # LabLink — Making College Laboratories More Accessible
 
-[![Repository Size](https://img.shields.io/badge/repo%20size-0.626%20MB-emerald?style=flat-square)](https://github.com)
-[![Tests Passing](https://img.shields.io/badge/tests-27%20passed-indigo?style=flat-square)](https://github.com)
+[![Repository Size](https://img.shields.io/badge/repo%20size-0.77%20MB-emerald?style=flat-square)](https://github.com)
+[![Tests Passing](https://img.shields.io/badge/tests-46%20passed-indigo?style=flat-square)](https://github.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-blue?style=flat-square)](https://www.typescriptlang.org/)
+[![GenAI Powered](https://img.shields.io/badge/GenAI-Gemini%20%7C%20Ollama-purple?style=flat-square)](https://ai.google.dev/)
 [![License](https://img.shields.io/badge/license-MIT-slate?style=flat-square)](LICENSE)
 
 > **Important Notice:** This version of LabLink is an open-access academic demonstration platform using fictional data. It intentionally does not implement authentication barriers (passwords, logins, signups, OTPs, or JWTs) so evaluators can instantly access and test all student, faculty, and administrative workflows. The demonstration role selector only changes the displayed interface and does not provide actual server-side security authorization. Do not use real institutional or personal data without implementing proper authentication and authorization controls.
@@ -17,147 +18,209 @@ In modern universities, students frequently struggle to access specialized labor
 - **Resource Underutilization:** Expensive workstations (FPGAs, GPUs, Oscilloscopes) sit idle during off-peak hours while bottlenecked during milestone weeks.
 - **Manual Contention:** Students request the exact same slots and competing requests are reviewed arbitrarily on a first-come, first-served basis without evaluating urgency or past resource consumption.
 - **No Conflict Detection:** Overlapping booking requests lead to confusion, double bookings, and frustration.
+- **Technical Specification Gaps:** Students know their research goals (e.g., "smart agriculture IoT") but do not know exact hardware models, voltage constraints, or matching campus lab inventory.
 
 ### The Solution
-**LabLink** is a centralized, GenAI-assisted campus laboratory resource-sharing platform. It unifies cross-department equipment discovery, live availability tracking, project-based access, and transparent faculty approval workflows.
+**LabLink** is a centralized, GenAI-powered campus laboratory resource-sharing platform. It unifies cross-department equipment discovery, live availability tracking, project-based access, intelligent deterministic conflict resolution, and transparent faculty approval workflows.
 
-At its core is a **deterministic, weighted intelligent scheduling engine** that detects conflicting requests, scores them transparently based on deadline urgency, technical fit, and historical fairness, and recommends optimal allocations alongside verified alternative time slots and compatible equipment.
-
----
-
-## 2. Key Platform Capabilities
-
-1. **Cross-Department Equipment Discovery:** Browse 12+ seeded instrumentation categories across CSE, ECE, EEE, Mechanical, and Robotics labs with real-time slot tracking.
-2. **Deterministic Intelligent Scheduling Engine:** Automatically clusters overlapping requests and evaluates a 5-factor weighted priority score without requiring external paid API keys.
-3. **Anti-Monopolization & Historical Fairness:** Systematically prioritizes first-time and under-allocated students over repeat power users.
-4. **Verified Alternative Recommendations:** Proposes same-day, next-day, and compatible cross-department hardware alternatives verified against live calendar reservations.
-5. **Faculty Authorization Workflow:** Lab heads inspect student project justifications and AI score breakdowns to approve or reject requests with immediate database updates.
-6. **Live Institutional Analytics:** Dynamic administrator dashboard calculating campus equipment utilization percentage, department velocity, and peak booking hours directly from database records.
-7. **Administrative Asset & Maintenance Controls:** Add/edit/remove instruments, manage lab locations, schedule maintenance lockouts, and tune algorithm weights via interactive sliders.
+LabLink combines:
+1. **A Mathematical Scheduling & Fairness Engine:** Deterministically clusters overlapping requests and evaluates a 5-factor weighted priority score (35% deadline urgency, 25% technical compatibility, 15% queue wait time, 15% historical fairness, 10% scheduling feasibility).
+2. **Four Real Generative AI Features:** Powered by Google Gemini (free tier) or local Ollama, providing natural language requirement extraction, conversational equipment recommendations grounded in real inventory (RAG), human-readable conflict rationale, and objective faculty approval briefings.
 
 ---
 
-## 3. Technology Stack
+## 2. Real Generative AI Features
 
-- **Frontend:** React 18, Vite, TypeScript (Strict), Tailwind CSS, Lucide React icons, React Router v6.
-- **Backend:** Node.js 24, Express.js, TypeScript (Strict), Zod schema validation, RESTful APIs.
+LabLink integrates four genuine Generative AI features that leverage Large Language Models (LLMs) with strict schema validation, prompt safety boundaries, and deterministic fallbacks.
+
+```
++---------------------------------------------------------------------------------------------------+
+|                                  LABLINK GENAI SYSTEM ARCHITECTURE                                |
++---------------------------------------------------------------------------------------------------+
+|                                                                                                   |
+|  [Student Dashboard]               [Student Discovery / Chat]         [AI Scheduling Page]        |
+|           |                                    |                               |                  |
+|    Natural Language                     Natural Query                   Overlap Detected          |
+|    Project Description                  "I need FPGA..."                (Aarav vs Priya)          |
+|           |                                    |                               |                  |
+|           v                                    v                               v                  |
+|  +------------------+                 +------------------+            +------------------+        |
+|  |   Feature 1:     |                 |   Feature 2:     |            |   Feature 3:     |        |
+|  | Project Analyzer |                 |  Equipment Chat  |            | Conflict Explain |        |
+|  +------------------+                 +------------------+            +------------------+        |
+|           |                                    |                               |                  |
+|           +-----------------+                  |                               |                  |
+|                             |                  |                               |                  |
+|                             v                  v                               v                  |
+|                 +-----------------------------------------------------------------------+         |
+|                 |                   BACKEND REST API ROUTER (/api/ai/*)                 |         |
+|                 |     Zod Validation • Prompt Sanitization • In-Memory RAG Assembly     |         |
+|                 +-----------------------------------------------------------------------+         |
+|                                                    |                                              |
+|                                                    v                                              |
+|                 +-----------------------------------------------------------------------+         |
+|                 |                   PROVIDER-INDEPENDENT AI SERVICE                     |         |
+|                 |       Active Provider: Google Gemini v1beta REST (Default) / Ollama   |         |
+|                 |     No heavy SDKs • Node 24 Native Fetch • Strict JSON Schema Output  |         |
+|                 +-----------------------------------------------------------------------+         |
+|                                /                                         \                        |
+|                     Success   /                                           \ Failure / No Key      |
+|                              v                                             v                      |
+|                 +-------------------------+                   +-------------------------+         |
+|                 |   Real LLM Response     |                   |  Deterministic Fallback |         |
+|                 |   (isAIGenerated: true) |                   |  (isAIGenerated: false) |         |
+|                 |   Structured JSON       |                   |  Heuristic-based JSON   |         |
+|                 +-------------------------+                   +-------------------------+         |
+|                              \                                             /                      |
+|                               +--------------------+----------------------+                       |
+|                                                    |                                              |
+|                                                    v                                              |
+|                 +-----------------------------------------------------------------------+         |
+|                 |            RAG GROUNDING & INVENTORY VERIFICATION (SQLite)            |         |
+|                 |   Cross-validates recommended equipment IDs against verified catalog. |         |
+|                 |       Filters any hallucinated hardware not in physical inventory.    |         |
+|                 +-----------------------------------------------------------------------+         |
+|                                                    |                                              |
+|                                                    v                                              |
+|  [Pre-fill Booking Request]        [Interactive Cards in Chat]       [Faculty Approval Briefing]  |
+|  Directly book analyzed kits       Direct "Details" & "Book" links    Feature 4: Request Summary  |
+|                                                                                                   |
++---------------------------------------------------------------------------------------------------+
+```
+
+### Feature 1: AI Project Requirement Analyzer
+- **Purpose:** Translates free-form student project descriptions into structured technical hardware requirements, required laboratory workstations, and prerequisite skills.
+- **Where It Lives:** Student Dashboard (`/student`) and Booking Request form (`/request`).
+- **How It Works:**
+  1. Student describes their project in plain English (e.g., *"Developing an IoT-based smart agriculture monitoring system with soil moisture and LoRaWAN"*).
+  2. The LLM extracts: Project Title, Category, Summary, Required Equipment List, Technical Specifications (microcontroller compatibility, power, wireless), Suggested Lab Facilities, Estimated Hours, and Safety Precautions.
+  3. The student can review and edit all extracted specifications inline.
+  4. Clicking **"Use Requirements to Request Equipment"** carries the extracted parameters directly into the booking form, automatically selecting the recommended hardware.
+- **Endpoint:** `POST /api/ai/analyze-project`
+
+### Feature 2: AI Equipment Recommendation Assistant
+- **Purpose:** A conversational AI assistant that helps students explore lab hardware, learn instrument capabilities, and find suitable equipment based on their technical needs.
+- **Where It Lives:** Student Dashboard (`/student`) and Equipment Catalog (`/equipment`).
+- **How It Works:**
+  1. Student asks questions like *"I need an oscilloscope to measure 100MHz signals with serial decoding"* or *"What board should I use for edge AI inference?"*.
+  2. The backend retrieves the **real database inventory** across all departments and feeds it into the prompt context (Retrieval-Augmented Generation / RAG).
+  3. The model returns a conversational explanation, suggested direct equipment matches, and alternative hardware.
+  4. **Strict Grounding Verification:** The backend cross-checks every suggested equipment ID against the active SQLite database. Any non-existent or hallucinated equipment is stripped out before returning to the UI.
+  5. The UI renders interactive equipment cards inside the chat window with real-time status badges and one-click **"View Details"** or **"Book Now"** buttons.
+- **Endpoint:** `POST /api/ai/recommend-equipment`
+
+### Feature 3: AI Conflict Resolution Assistant
+- **Purpose:** Translates complex mathematical priority scores into clear, human-readable explanations when multiple students request overlapping time slots.
+- **Where It Lives:** AI Scheduling Page (`/scheduling`).
+- **Important Architectural Distinction:**
+  - **The LLM does NOT make the allocation decision.**
+  - The deterministic scheduling algorithm calculates exact priority scores (e.g., Aarav: 84.5 vs Priya: 68.2) based on the immutable 5-factor formula.
+  - The LLM translates these scores into a transparent natural-language explanation detailing why the primary student was prioritized (e.g., final-year milestone deadline urgency and zero prior resource usage) and explains why specific alternative slots (same-day afternoon, next-day morning, or compatible hardware) were recommended.
+- **Endpoint:** `POST /api/ai/explain-conflict`
+
+### Feature 4: AI Faculty Request Summarizer
+- **Purpose:** Generates concise, objective briefings for faculty reviewers to help them quickly evaluate pending student requests.
+- **Where It Lives:** Faculty Approvals Page (`/approvals`) and Faculty Dashboard (`/faculty`).
+- **How It Works:**
+  1. Compiles student project justification, academic level, requested equipment specs, duration, and past usage into an AI synthesis prompt.
+  2. The LLM generates: 2-sentence executive summary, key justification points, technical compatibility assessment, potential concerns (e.g., high duration, high-voltage equipment, first-time user), and a neutral recommendation.
+  3. **Faculty Retains Sole Authority:** The briefing is strictly advisory. Faculty members have direct **Approve** and **Reject** buttons to make the final determination.
+- **Endpoint:** `POST /api/ai/summarize-request`
+
+---
+
+## 3. Supported AI Providers & Architecture
+
+LabLink features a **zero-external-SDK** AI client that runs on Node.js 24 native `fetch`, keeping the repository footprint tiny (< 0.8 MB).
+
+| Provider | Model Used | Setup Requirement | Cost |
+|---|---|---|---|
+| **Google Gemini (Default)** | `gemini-1.5-flash` or `gemini-2.5-flash` | Free API Key from Google AI Studio | **100% Free Tier** |
+| **Local Ollama (Offline)** | `llama3.2`, `mistral`, or `llama3` | Local Ollama daemon running on `http://localhost:11434` | **100% Free & Local** |
+| **Deterministic Fallback** | Heuristic Rules Engine | None (Works automatically if no key or offline) | **No Network Required** |
+
+### Provider Failure & Graceful Fallback
+If:
+- No API key is configured
+- An invalid API key is provided
+- Google Gemini rate limit / quota is exceeded (HTTP 429)
+- Network connectivity is lost
+- Local Ollama is not running
+
+**LabLink NEVER crashes or errors out.** The provider client automatically switches to the built-in deterministic fallback engine. All responses return with:
+- `isAIGenerated: false`
+- `modelUsed: "Deterministic Rule-Based Fallback (Offline Mode)"`
+- A visual amber badge in the UI informing the user: *"Generated via Offline Fallback"*.
+
+---
+
+## 4. API Key & Environment Configuration
+
+### Step 1: Obtain a Free Google Gemini API Key
+1. Visit [Google AI Studio](https://aistudio.google.com/).
+2. Sign in with your Google account.
+3. Click **"Get API key"** and create a new key (free tier, no credit card required).
+
+### Step 2: Configure `backend/.env`
+Create a `.env` file inside the `backend` directory (copy from `backend/.env.example`):
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Edit `backend/.env`:
+```env
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+CLIENT_URL=http://localhost:5173
+
+# Database Configuration
+DATABASE_URL=file:./dev.db
+
+# AI Provider Configuration
+# Supported options: "gemini" | "ollama"
+AI_PROVIDER=gemini
+
+# Google Gemini API Configuration (Free Tier from https://aistudio.google.com/)
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-1.5-flash
+
+# Local Ollama Configuration (Optional fallback/alternative)
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.2
+
+# Open-Access Demonstration Mode
+AUTH_DISABLED=true
+DEMO_MODE=true
+```
+
+> **Security & Privacy Boundary:**
+> - `GEMINI_API_KEY` is stored **exclusively** on the backend server.
+> - The API key is **never** sent to the client browser or exposed via any API response.
+> - The `/api/ai/status` endpoint reports `hasApiKey: true/false` and the model name, never the secret key.
+> - Student identifiers are sanitized; only anonymized academic project text is sent to the LLM.
+
+---
+
+## 5. Technology Stack
+
+- **Frontend:** React 18, Vite, TypeScript (Strict Mode), Tailwind CSS, Lucide React icons, React Router v6.
+- **Backend:** Node.js 24, Express.js, TypeScript (Strict Mode), Zod schema validation, RESTful APIs.
 - **Database & ORM:** SQLite with high-performance native `node:sqlite` (DatabaseSync, WAL mode) and migration-friendly Prisma schema architecture.
-- **AI & Scheduling:** Custom deterministic multi-criteria constraint engine with transparent weighted priority scoring and natural-language rationale generation.
-- **Testing:** Vitest, React Testing Library, Supertest (27 automated tests passing).
-- **Asset Footprint:** Ultra-lightweight SVG illustrations and CSS styling keeping the tracked repository footprint below **0.63 MB** (strict limit: < 10 MB).
+- **AI & GenAI Engine:** Dual-mode architecture (Google Gemini REST API / Local Ollama) + Deterministic Rule Engine + RAG grounding against SQLite catalog.
+- **Testing:** Vitest, React Testing Library, Supertest (46 automated tests passing 100%).
+- **Asset Footprint:** Pure SVG iconography and modern CSS utility tokens keeping the total repository source footprint at **0.77 MB** (limit: < 10 MB).
 
 ---
 
-## 4. System Architecture
-
-```mermaid
-flowchart TD
-    subgraph Client ["Frontend (React + Vite + TypeScript)"]
-        UI["Modern SaaS UI (Tailwind CSS)"]
-        RoleCtx["Role Context (Student / Faculty / Admin Switcher)"]
-        Discovery["Equipment Discovery & Filters"]
-        BookingUI["Intelligent Booking Form"]
-        AI_UI["AI Recommendations & Conflict Viewer"]
-        FacultyUI["Faculty Approvals Dashboard"]
-        AdminUI["Admin Analytics & Weight Calibration"]
-    end
-
-    subgraph Server ["Backend (Node.js + Express + TypeScript)"]
-        Router["REST API Router (/api/*)"]
-        ZodVal["Zod Input Validation Middleware"]
-        SchedEngine["Intelligent Scheduling & Fairness Engine"]
-        ConflictDet["Conflict Detector & Overlap Clustering"]
-        Scorer["Priority Scorer (35/25/15/15/10)"]
-        AltFinder["Alternative Slot & Compatibility Finder"]
-        Explainer["Natural-Language AI Explanation Generator"]
-    end
-
-    subgraph Data ["Database Layer (SQLite / Prisma Model)"]
-        DB[(SQLite dev.db - WAL Mode)]
-        Tables["Users • Equipment • Departments • Laboratories • Projects • Bookings • Requests • Maintenance • Weights"]
-    end
-
-    UI --> Router
-    Router --> ZodVal
-    ZodVal --> SchedEngine
-    SchedEngine --> ConflictDet
-    ConflictDet --> Scorer
-    Scorer --> AltFinder
-    AltFinder --> Explainer
-    SchedEngine --> DB
-```
-
----
-
-## 5. Folder Structure
-
-```
-lablink/
-├── backend/
-│   ├── prisma/
-│   │   └── schema.prisma         # Declarative schema for PostgreSQL / Prisma compatibility
-│   ├── src/
-│   │   ├── controllers/          # Request handlers
-│   │   ├── db/
-│   │   │   ├── database.ts       # Native node:sqlite client with WAL mode
-│   │   │   ├── schema.sql        # Normalized DDL table definitions & indexes
-│   │   │   └── seed.ts           # Realistic campus seed data script
-│   │   ├── middleware/
-│   │   │   └── errorHandler.ts   # Centralized Zod & HTTP error handler
-│   │   ├── routes/               # Modular Express API endpoints
-│   │   ├── scheduling/
-│   │   │   ├── alternativeFinder.ts    # Live alternative slot & compatibility search
-│   │   │   ├── conflictDetector.ts     # Overlap clustering & maintenance lockouts
-│   │   │   ├── explanationGenerator.ts # Natural-language AI rationale generator
-│   │   │   ├── fairAllocator.ts        # Cluster resolution orchestrator
-│   │   │   ├── priorityScorer.ts       # 5-factor weighted formula implementation
-│   │   │   └── types.ts
-│   │   ├── services/             # Database repository services
-│   │   ├── types/
-│   │   ├── validators/           # Zod schema contracts
-│   │   ├── app.ts                # Express application configuration
-│   │   └── index.ts              # Server bootstrap entry point
-│   ├── tests/
-│   │   ├── api.test.ts           # REST API endpoint integration tests
-│   │   ├── scenario.test.ts      # 20-step end-to-end scenario integration test
-│   │   └── scheduling.test.ts    # Scheduling engine unit tests
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── vitest.config.ts
-├── frontend/
-│   ├── src/
-│   │   ├── components/           # Reusable UI components (Navbar, StatusBadge, Modal, etc.)
-│   │   ├── context/              # RoleContext & NotificationContext
-│   │   ├── pages/                # 15 distinct pages for Student, Faculty, and Admin
-│   │   ├── services/
-│   │   │   └── api.ts            # Client API abstraction
-│   │   ├── test/                 # React Testing Library automated tests
-│   │   ├── types/
-│   │   ├── App.tsx               # Master router & view orchestration
-│   │   ├── index.css             # Tailwind base & custom design tokens
-│   │   └── main.tsx
-│   ├── index.html
-│   ├── package.json
-│   ├── tailwind.config.js
-│   ├── tsconfig.json
-│   └── vite.config.ts
-├── scripts/
-│   └── check-repo-size.js        # Repository size verification script
-├── .env.example
-├── .gitignore
-├── package.json
-└── README.md
-```
-
----
-
-## 6. The Intelligent Scheduling Algorithm
+## 6. The Deterministic Scheduling Algorithm
 
 When competing requests overlap for the same equipment and calendar date, LabLink's scheduling engine computes a transparent, composite priority score normalized to a scale of 0 to 100:
 
 $$\text{Composite Score} = (U \times W_{\text{deadline}}) + (C \times W_{\text{compat}}) + (Q \times W_{\text{wait}}) + (F \times W_{\text{fair}}) + (S \times W_{\text{feas}})$$
 
-### Initial Weight Distribution (Admin-Configurable):
+### Priority Weight Distribution (Admin-Configurable):
 
 | Parameter | Default Weight | Description & Calculation Metric |
 |---|---:|---|
@@ -171,34 +234,7 @@ Total: **100% (1.0)**. Administrators can dynamically fine-tune these coefficien
 
 ---
 
-## 7. The 20-Step End-to-End Demonstration Scenario
-
-The platform supports the complete master prompt workflow:
-
-1. **Step 1:** Open application in browser — loads immediately without login or password barriers.
-2. **Step 2:** Select the **Student** role from the header dropdown.
-3. **Step 3:** Search for `"FPGA Development Kit"` in the catalog.
-4. **Step 4:** Open equipment details and review Artix-7 specifications and active calendar availability.
-5. **Step 5:** Create an academic project titled *"Real-Time Image Processing System"* with a 3-day deadline.
-6. **Step 6:** Submit an access request for tomorrow (10:00 - 13:00).
-7. **Step 7:** Switch student profile to **Priya Patel** and submit an overlapping request for tomorrow (11:00 - 14:00).
-8. **Step 8:** Application detects the conflict automatically.
-9. **Step 9:** Intelligent scheduling engine clusters both requests.
-10. **Step 10:** Priority scores are calculated (Aarav receives higher score due to imminent deadline and first-time usage).
-11. **Step 11:** Engine recommends Aarav as the primary allocation.
-12. **Step 12:** Engine generates verified alternative time slots (same-day afternoon slot, next-day slot, or Jetson Nano alternative) for Priya.
-13. **Step 13:** Switch to **Faculty** role (**Prof. Ananya Iyer**).
-14. **Step 14:** Open the Pending Requests interface.
-15. **Step 15:** Inspect competing project scopes, deadline urgency, and AI rationale.
-16. **Step 16:** Approve the recommended allocation — slot availability updates immediately in the database.
-17. **Step 17:** Switch back to **Student** role.
-18. **Step 18:** Aarav views his status as `Approved`; Priya views her status as `Alternative Suggested` with viable slots.
-19. **Step 19:** Switch to **Administrator** role.
-20. **Step 20:** View updated campus utilization percentage, active booking count, conflict logs, and audit records.
-
----
-
-## 8. Installation & Setup Instructions
+## 7. Installation & Setup Instructions
 
 ### Prerequisites
 - Node.js version 20+ (Node.js 22 or 24 recommended).
@@ -207,7 +243,7 @@ The platform supports the complete master prompt workflow:
 ### 1. Clone & Install Dependencies
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Chida-46/unreal_prompt.git
 cd unreal_prompt
 
 # Install backend dependencies
@@ -223,9 +259,9 @@ cd ..
 ```
 
 ### 2. Configure Environment Variables
-Copy `.env.example` to `backend/.env`:
 ```bash
-cp .env.example backend/.env
+cp backend/.env.example backend/.env
+# Edit backend/.env and insert your free GEMINI_API_KEY if testing real LLM generation
 ```
 
 ### 3. Initialize & Seed Database
@@ -237,9 +273,9 @@ cd ..
 
 ---
 
-## 9. Running the Application Locally
+## 8. Running the Application Locally
 
-Run backend and frontend concurrently from root:
+Run backend and frontend in separate terminals:
 
 ```bash
 # Terminal 1: Start Backend API (Port 5000)
@@ -258,29 +294,67 @@ The application will immediately render the LabLink interface without requiring 
 
 ---
 
+## 9. How to Test the Four GenAI Features
+
+### Testing Feature 1 (AI Project Analyzer)
+1. In the top navigation bar, ensure the role is set to **Student**.
+2. On the **Student Dashboard**, locate the **AI Project Requirement Analyzer** card.
+3. Click the sample prompt chip: *"IoT Smart Agriculture Monitoring"* or paste:
+   > *"I am building a smart greenhouse monitoring system that measures temperature, humidity, and soil moisture, and sends data over LoRa to a cloud dashboard. I need an ESP32 board and sensors."*
+4. Click **"Analyze Requirements with AI"**.
+5. Observe the structured output cards (Overview, Hardware, Technical Requirements, Labs).
+6. Click **"Edit Requirements"** to tweak parameters, then click **"Use Requirements to Request Equipment"** to see the booking form auto-populate.
+
+### Testing Feature 2 (AI Equipment Recommendation Assistant)
+1. On the **Student Dashboard**, locate the **AI Equipment Assistant** chat panel.
+2. Click the quick prompt: *"What FPGA boards are available for Vivado?"* or type:
+   > *"I need an edge AI computer for running YOLO object detection on a robotic vehicle."*
+3. The AI replies with tailored technical advice and displays **interactive equipment cards** (e.g., NVIDIA Jetson Nano Developer Kit) with live status tags and direct **"Details"** and **"Book"** buttons.
+
+### Testing Feature 3 (AI Conflict Explainer)
+1. In the top navigation bar, switch to **Administrator** or navigate directly to **AI Scheduling** (`/scheduling`).
+2. Locate the competing requests cluster (e.g., Aarav Sharma vs Priya Patel for the FPGA Development Kit).
+3. Click **"AI Conflict Analysis"**.
+4. The system displays the deterministic composite scores (e.g. 84.5 vs 68.2) alongside an AI-synthesized explanation breaking down why Aarav's impending 3-day deadline and first-time usage tipped the balance, as well as why the recommended afternoon slot was offered to Priya.
+
+### Testing Feature 4 (AI Faculty Request Summarizer)
+1. In the top navigation bar, switch to **Faculty**.
+2. Navigate to **Pending Approvals** (`/approvals`).
+3. Under any pending student booking request, click **"AI Briefing"**.
+4. An expandable briefing box opens containing:
+   - 2-sentence executive summary
+   - Key justification points
+   - Technical compatibility check
+   - Safety / duration concerns
+   - Neutral approval recommendation
+5. Click **"Approve"** or **"Reject"** to execute the faculty decision with immediate database updates.
+
+---
+
 ## 10. Automated Testing
 
-Run the full automated test suite (backend unit tests, 20-step scenario integration tests, and frontend React tests):
+Run the full automated test suite:
 
 ```bash
-# Run all tests across backend and frontend
+# Run all tests across backend and frontend (46 tests)
 npm test
 
-# Run backend & scenario tests only
+# Run backend unit, scheduling, API, and AI tests only (35 tests)
 cd backend
 npm test
 
-# Run frontend unit tests only
+# Run frontend React component and integration tests only (11 tests)
 cd frontend
 npm test
 ```
 
-### Test Suite Summary:
-- **Backend Scheduling Tests:** 8 tests passing (Urgency scoring, compatibility matching, fairness bonuses, feasibility penalties, overlap detection, maintenance lockouts).
-- **Backend API Integration Tests:** 7 tests passing (Catalog discovery, search filters, details, live analytics calculations, booking creation, faculty approval workflows).
-- **Master Scenario Integration Tests:** 8 tests passing (Complete 20-step competing FPGA access scenario with live database state transitions).
-- **Frontend Component & Role Tests:** 4 tests passing (Instant role switching, status badges, direct access without login/password barriers).
-- **Total: 27 automated tests passing.**
+### Test Suite Breakdown:
+- **`backend/tests/ai.test.ts` (9 tests):** Status check, project analyzer, equipment recommender with RAG grounding, conflict explainer, faculty summarizer, input validation, prompt injection defense, offline fallback behavior, and API key secrecy.
+- **`backend/tests/scheduling.test.ts` (8 tests):** Urgency scoring, compatibility matching, fairness bonuses, feasibility penalties, overlap clustering, maintenance lockouts.
+- **`backend/tests/api.test.ts` (7 tests):** Catalog discovery, search filters, equipment details, live analytics calculations, booking creation, faculty approval workflows.
+- **`backend/tests/scenario.test.ts` (8 tests):** Complete 20-step competing FPGA access scenario with live database state transitions.
+- **`frontend/src/test/frontend.test.tsx` (11 tests):** Instant role switching, student dashboard, equipment booking count verification, AI Project Analyzer integration, AI Assistant chat, AI Conflict Explainer, AI Faculty Summarizer.
+- **Total: 46 automated tests passing 100%.**
 
 ---
 
@@ -306,7 +380,7 @@ Verify that the project source code remains strictly within the 10 MB limit:
 npm run check-size
 ```
 
-**Measured Size:** **`~0.626 MB`** (well below the 8 MB safety threshold).
+**Measured Size:** **`~0.77 MB`** (well below the 10 MB ceiling).
 
 ---
 
@@ -315,6 +389,11 @@ npm run check-size
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/api/health` | Service health status and open-access mode confirmation |
+| `GET` | `/api/ai/status` | Current AI provider status (`gemini`/`ollama`/fallback) and model name |
+| `POST` | `/api/ai/analyze-project` | GenAI Feature 1: Extract hardware & specs from project description |
+| `POST` | `/api/ai/recommend-equipment` | GenAI Feature 2: Conversational RAG equipment assistant |
+| `POST` | `/api/ai/explain-conflict` | GenAI Feature 3: Natural language explanation of priority scores & alternatives |
+| `POST` | `/api/ai/summarize-request` | GenAI Feature 4: Structured briefing for faculty approval decisions |
 | `GET` | `/api/equipment` | Search and filter laboratory catalog across all departments |
 | `GET` | `/api/equipment/:id` | Full equipment specifications, location, and calendar availability |
 | `POST` | `/api/equipment` | (Admin) Register new laboratory equipment |
@@ -348,6 +427,7 @@ npm run check-size
   2. Implement server-side JWT verification and session-based role-based access control (RBAC) middleware on administrative and faculty endpoints.
   3. Migrate SQLite datasource to managed PostgreSQL (`schema.prisma` is pre-configured and fully compatible).
   4. Enable TLS certificate pinning and strict origin CORS headers.
+  5. Configure organizational AI API keys with enterprise data privacy terms.
 
 ---
 

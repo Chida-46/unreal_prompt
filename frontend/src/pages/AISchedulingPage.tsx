@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { AllocationRecommendation } from '../types';
 import { StatusBadge } from '../components/StatusBadge';
+import { AIConflictExplainer } from '../components/AIConflictExplainer';
 import {
   Brain,
   Sparkles,
@@ -133,6 +134,12 @@ export const AISchedulingPage: React.FC = () => {
           {/* Conflict Detail & AI Breakdown (Right) */}
           {selectedRec && (
             <div className="lg:col-span-8 space-y-6">
+              {/* Feature 3: GenAI Conflict Resolution Explanation Assistant */}
+              <AIConflictExplainer
+                conflictGroupId={selectedRec.conflictGroupId}
+                recommendation={selectedRec}
+              />
+
               {/* Winner Allocation Card */}
               <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">

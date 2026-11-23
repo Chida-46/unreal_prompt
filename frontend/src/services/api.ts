@@ -11,6 +11,11 @@ import {
   Laboratory,
   User,
   SchedulingWeights,
+  AIStatus,
+  ProjectAnalysisResult,
+  EquipmentRecommendationResult,
+  ConflictExplanationResult,
+  FacultySummaryResult,
 } from '../types';
 
 const API_BASE = '/api';
@@ -324,6 +329,67 @@ export const api = {
       body: JSON.stringify({ status }),
     });
     if (!res.ok) throw new Error('Failed to update maintenance');
+    return res.json();
+  },
+
+  // ===========================================================================
+  // Generative AI Services
+  // ===========================================================================
+  async getAIStatus(): Promise<AIStatus> {
+    const res = await fetch(`${API_BASE}/ai/status`);
+    if (!res.ok) throw new Error('Failed to fetch AI status');
+    return res.json();
+  },
+
+  async analyzeProject(description: string): Promise<ProjectAnalysisResult> {
+    const res = await fetch(`${API_BASE}/ai/analyze-project`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to analyze project requirements');
+    }
+    return res.json();
+  },
+
+  async recommendEquipment(query: string): Promise<EquipmentRecommendationResult> {
+    const res = await fetch(`${API_BASE}/ai/recommend-equipment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to recommend equipment');
+    }
+    return res.json();
+  },
+
+  async explainConflict(conflictGroupId: string): Promise<ConflictExplanationResult> {
+    const res = await fetch(`${API_BASE}/ai/explain-conflict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conflictGroupId }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to explain scheduling conflict');
+    }
+    return res.json();
+  },
+
+  async summarizeFacultyRequest(requestId: string): Promise<FacultySummaryResult> {
+    const res = await fetch(`${API_BASE}/ai/summarize-request`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requestId }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to generate faculty request summary');
+    }
     return res.json();
   },
 };

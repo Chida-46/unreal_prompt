@@ -7,17 +7,18 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
-  console.error('API Error:', err);
-
-  if (err instanceof ZodError) {
+  if (err instanceof ZodError || err.name === 'ZodError' || Array.isArray(err.issues) || Array.isArray(err.errors)) {
+    const issues = err.issues || err.errors || [];
     return res.status(400).json({
       error: 'Validation failed',
-      details: err.errors.map(e => ({
-        field: e.path.join('.'),
+      details: issues.map((e: any) => ({
+        field: e.path ? e.path.join('.') : '',
         message: e.message,
       })),
     });
   }
+
+  console.error('API Error:', err);
 
   const statusCode = err.status || err.statusCode || 500;
   res.status(statusCode).json({

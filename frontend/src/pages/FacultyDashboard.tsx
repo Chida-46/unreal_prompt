@@ -14,6 +14,8 @@ import {
   BrainCircuit,
   Search,
   Building2,
+  Sparkles,
+  Brain,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -103,6 +105,34 @@ export const FacultyDashboard: React.FC = () => {
           icon={Building2}
           color="emerald"
         />
+      </div>
+
+      {/* Feature 4: GenAI Request Summarizer Banner */}
+      <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-indigo-50 border border-emerald-200/80 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="p-2.5 rounded-xl bg-emerald-600 text-white shrink-0 mt-0.5 shadow-xs">
+            <Brain className="w-5 h-5 text-emerald-100" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-sm text-emerald-950">AI Faculty Request Summarizer</h3>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider">
+                GenAI Feature 4
+              </span>
+            </div>
+            <p className="text-xs text-emerald-800/90 mt-1 max-w-2xl leading-relaxed">
+              Reviewing complex lab requests? LabLink's GenAI model analyzes student project scopes against verified hardware specifications, identifying technical compatibility flags, duration limits, and risks while preserving your sole approval authority.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          to="/faculty/approvals"
+          className="self-start sm:self-center px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 shadow-xs"
+        >
+          <span>Open AI Approvals Queue</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
       {/* Quick Approvals Queue Preview */}

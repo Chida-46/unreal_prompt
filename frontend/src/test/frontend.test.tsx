@@ -10,6 +10,10 @@ import { StatusBadge } from '../components/StatusBadge';
 import { StudentDashboard } from '../pages/StudentDashboard';
 import { FacultyDashboard } from '../pages/FacultyDashboard';
 import { AdminDashboard } from '../pages/AdminDashboard';
+import { AIProjectAnalyzer } from '../components/AIProjectAnalyzer';
+import { AIAssistantChat } from '../components/AIAssistantChat';
+import { AIFacultySummarizer } from '../components/AIFacultySummarizer';
+import { AIConflictExplainer } from '../components/AIConflictExplainer';
 
 // Mock fetch for isolated unit testing
 beforeEach(() => {
@@ -375,5 +379,168 @@ describe('Landing Page Direct Access', () => {
     expect(screen.queryByPlaceholderText(/password/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/login to continue/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/sign up/i)).not.toBeInTheDocument();
+  });
+});
+
+describe('GenAI Frontend Features Integration', () => {
+  it('Feature 1: AIProjectAnalyzer should analyze description and render extracted equipment', async () => {
+    vi.stubGlobal('fetch', vi.fn((url: string) => {
+      if (url.includes('/api/ai/analyze-project')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            projectOverview: {
+              title: 'IoT Hydroponics Prototype',
+              category: 'Internet of Things',
+              summary: 'Automated nutrient monitoring.',
+            },
+            requiredEquipment: [
+              { name: 'ESP32 NodeMCU IoT Board', reason: 'Telemetry processing', estimatedQuantity: 1 },
+            ],
+            technicalRequirements: {
+              microcontrollerCompatibility: '3.3V logic',
+              sensorInterfaces: 'I2C / ADC',
+              wirelessConnectivity: 'Wi-Fi 802.11 b/g/n',
+              powerSpecs: '5V USB',
+            },
+            estimatedUsage: {
+              suggestedDuration: '2 Weeks',
+              recommendedSlotMinutes: 120,
+              requiresSpecializedLab: false,
+            },
+            additionalRecommendations: {
+              alternativeEquipment: ['Raspberry Pi Pico W'],
+              missingComponents: ['Jumper wires'],
+              safetyConsiderations: [],
+            },
+            isAIGenerated: true,
+            modelUsed: 'Generative AI (gemini-1.5-flash)',
+          }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    }));
+
+    render(
+      <MemoryRouter>
+        <AIProjectAnalyzer />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('AI Project Requirement Analyzer')).toBeInTheDocument();
+
+    const textarea = screen.getByPlaceholderText(/I am developing an IoT-based/i);
+    fireEvent.change(textarea, { target: { value: 'Developing an automated hydroponics IoT nutrient monitor.' } });
+
+    const btn = screen.getByText('Analyze Project with AI');
+    fireEvent.click(btn);
+
+    await waitFor(() => {
+      expect(screen.getByText('IoT Hydroponics Prototype')).toBeInTheDocument();
+      expect(screen.getByText('ESP32 NodeMCU IoT Board')).toBeInTheDocument();
+      expect(screen.getByText(/3.3V logic/)).toBeInTheDocument();
+    });
+  });
+
+  it('Feature 2: AIAssistantChat should render prompt chips and recommendations from real inventory', async () => {
+    vi.stubGlobal('fetch', vi.fn((url: string) => {
+      if (url.includes('/api/ai/recommend-equipment')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            answer: 'Here is the recommended development kit for your robotics rover.',
+            recommendedEquipment: [
+              {
+                equipmentId: 'eq-robo-01',
+                name: 'Robotic Arm Development Kit',
+                equipmentCode: 'EQ-ROBO-01',
+                departmentName: 'Robotics',
+                labName: 'Robotics Lab',
+                status: 'AVAILABLE',
+                relevanceReason: 'Matches 6-DOF kinematics requirements.',
+                matchScore: 95,
+              },
+            ],
+            suggestedAlternatives: [],
+            isAIGenerated: true,
+            modelUsed: 'Generative AI (gemini-1.5-flash)',
+          }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    }));
+
+    render(
+      <MemoryRouter>
+        <AIAssistantChat />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('AI Equipment Recommendation Assistant')).toBeInTheDocument();
+
+    const input = screen.getByPlaceholderText(/ask e.g./i);
+    fireEvent.change(input, { target: { value: 'Recommend robotics manipulator hardware' } });
+
+    const sendBtn = screen.getByText('Send');
+    fireEvent.click(sendBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('Robotic Arm Development Kit')).toBeInTheDocument();
+      expect(screen.getByText(/Matches 6-DOF kinematics/)).toBeInTheDocument();
+    });
+  });
+
+  it('Feature 4: AIFacultySummarizer should generate technical briefing and verdict for faculty', async () => {
+    vi.stubGlobal('fetch', vi.fn((url: string) => {
+      if (url.includes('/api/ai/summarize-request')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            projectSummary: 'Autonomous Drone Navigation',
+            requestedEquipment: [
+              { name: 'FPGA Development Kit', specs: 'Artix-7', requestedSlot: 'Tomorrow 10:00' },
+            ],
+            purposeOfEquipment: 'Optical flow filter synthesis',
+            technicalCompatibility: {
+              isCompatible: true,
+              explanation: 'Hardware logic cell count satisfies optical filter synthesis.',
+            },
+            availabilityAndConstraints: 'Within lab operating hours.',
+            potentialConcerns: ['Deadline is in 3 days.'],
+            aiRecommendation: {
+              verdict: 'APPEARS_TECHNICALLY_SUITABLE',
+              rationale: 'Project scope aligns with hardware capabilities.',
+            },
+            isAIGenerated: true,
+            modelUsed: 'Generative AI (gemini-1.5-flash)',
+          }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    }));
+
+    const mockReq: any = {
+      id: 'req-test-1',
+      student: { name: 'Aarav Sharma' },
+      equipment: { name: 'FPGA Development Kit' },
+    };
+
+    render(
+      <MemoryRouter>
+        <AIFacultySummarizer
+          request={mockReq}
+          onApprove={vi.fn()}
+          onReject={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    const briefingBtn = screen.getByText('Generate AI Faculty Summary');
+    fireEvent.click(briefingBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('Appears Technically Suitable')).toBeInTheDocument();
+      expect(screen.getByText(/Hardware Compatible/)).toBeInTheDocument();
+    });
   });
 });

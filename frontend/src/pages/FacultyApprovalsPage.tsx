@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { BookingRequest } from '../types';
 import { StatusBadge } from '../components/StatusBadge';
 import { Modal } from '../components/Modal';
+import { AIFacultySummarizer } from '../components/AIFacultySummarizer';
 import {
   ClipboardCheck,
   CheckCircle2,
@@ -219,6 +220,16 @@ export const FacultyApprovalsPage: React.FC = () => {
                     </Link>
                   </div>
                 )}
+
+                {/* Feature 4: GenAI Faculty Request Summarizer */}
+                <AIFacultySummarizer
+                  request={req}
+                  onApprove={handleApprove}
+                  onReject={(id) => {
+                    setActiveReqId(id);
+                    setRejectModalOpen(true);
+                  }}
+                />
 
                 {/* Action Buttons */}
                 <div className="pt-2 flex flex-wrap items-center justify-end gap-2.5">

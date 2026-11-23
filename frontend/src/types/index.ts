@@ -261,3 +261,107 @@ export interface SchedulingWeights {
   fairnessWeight: number;
   feasibilityWeight: number;
 }
+
+// =============================================================================
+// Generative AI Types
+// =============================================================================
+export interface AIStatus {
+  provider: 'gemini' | 'ollama';
+  model: string;
+  enabled: boolean;
+  hasApiKey: boolean;
+}
+
+export interface ProjectAnalysisResult {
+  projectOverview: {
+    title: string;
+    category: string;
+    summary: string;
+  };
+  requiredEquipment: Array<{
+    name: string;
+    reason: string;
+    estimatedQuantity: number;
+    categoryHint?: string;
+  }>;
+  technicalRequirements: {
+    microcontrollerCompatibility: string;
+    sensorInterfaces: string;
+    wirelessConnectivity: string;
+    powerSpecs: string;
+  };
+  estimatedUsage: {
+    suggestedDuration: string;
+    recommendedSlotMinutes: number;
+    requiresSpecializedLab: boolean;
+    labType?: string;
+  };
+  additionalRecommendations: {
+    alternativeEquipment: string[];
+    missingComponents: string[];
+    safetyConsiderations: string[];
+  };
+  isAIGenerated: boolean;
+  modelUsed: string;
+}
+
+export interface RecommendedEquipmentItem {
+  equipmentId: string;
+  name: string;
+  equipmentCode: string;
+  departmentName: string;
+  labName: string;
+  status: string;
+  relevanceReason: string;
+  matchScore: number;
+}
+
+export interface EquipmentRecommendationResult {
+  answer: string;
+  recommendedEquipment: RecommendedEquipmentItem[];
+  suggestedAlternatives: Array<{
+    equipmentId: string;
+    name: string;
+    reason: string;
+  }>;
+  isAIGenerated: boolean;
+  modelUsed: string;
+}
+
+export interface ConflictExplanationResult {
+  summary: string;
+  recommendedStudentExplanation: string;
+  factorBreakdownExplanations: {
+    deadlineUrgency: string;
+    technicalCompatibility: string;
+    waitingTime: string;
+    historicalFairness: string;
+    schedulingFeasibility: string;
+  };
+  alternativeRecommendationsRationale: string;
+  isAIGenerated: boolean;
+  modelUsed: string;
+}
+
+export interface FacultySummaryResult {
+  projectSummary: string;
+  requestedEquipment: Array<{
+    name: string;
+    specs: string;
+    requestedSlot: string;
+  }>;
+  purposeOfEquipment: string;
+  technicalCompatibility: {
+    isCompatible: boolean;
+    explanation: string;
+  };
+  availabilityAndConstraints: string;
+  potentialConcerns: string[];
+  aiRecommendation: {
+    verdict: 'APPEARS_TECHNICALLY_SUITABLE' | 'ADDITIONAL_INFO_REQUIRED' | 'POTENTIAL_MISMATCH' | 'ALTERNATIVE_SUGGESTED';
+    rationale: string;
+  };
+  isAIGenerated: boolean;
+  modelUsed: string;
+}
+
