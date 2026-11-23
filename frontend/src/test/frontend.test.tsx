@@ -543,4 +543,12 @@ describe('GenAI Frontend Features Integration', () => {
       expect(screen.getByText(/Hardware Compatible/)).toBeInTheDocument();
     });
   });
+
+  it('should render WCAG-compliant skip-to-content navigation link', async () => {
+    render(<App />);
+
+    const skipLink = screen.getByText('Skip to main content');
+    expect(skipLink).toBeInTheDocument();
+    expect(skipLink).toHaveAttribute('href', '#main-content');
+  });
 });

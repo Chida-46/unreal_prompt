@@ -58,9 +58,15 @@ export const App: React.FC = () => {
       <NotificationProvider>
         <BrowserRouter>
           <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-xs font-semibold"
+            >
+              Skip to main content
+            </a>
             <Banner />
             <Navbar />
-            <main className="flex-1">
+            <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
               <Routes>
                 {/* Public & Student Routes */}
                 <Route path="/" element={<LandingPage />} />

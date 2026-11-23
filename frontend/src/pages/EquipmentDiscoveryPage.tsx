@@ -85,20 +85,26 @@ export const EquipmentDiscoveryPage: React.FC = () => {
       <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-xs space-y-4">
         {/* Search bar */}
         <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <label htmlFor="equipment-search" className="sr-only">
+            Search equipment catalog
+          </label>
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
           <input
+            id="equipment-search"
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by equipment name, hardware keywords, FPGA, Jetson, Oscilloscope, Vivado..."
+            aria-label="Search equipment by keyword, hardware, or model"
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
           />
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              aria-label="Clear search query"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded p-1"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -107,11 +113,14 @@ export const EquipmentDiscoveryPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
           {/* Department Filter */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 mb-1">Department</label>
+            <label htmlFor="filter-department" className="block text-[11px] font-semibold text-slate-600 mb-1">
+              Department
+            </label>
             <select
+              id="filter-department"
               value={selectedDept}
               onChange={e => setSelectedDept(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-800 text-xs focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
             >
               <option value="">All Departments</option>
               {departments.map(d => (
@@ -122,11 +131,14 @@ export const EquipmentDiscoveryPage: React.FC = () => {
 
           {/* Category Filter */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 mb-1">Category</label>
+            <label htmlFor="filter-category" className="block text-[11px] font-semibold text-slate-600 mb-1">
+              Category
+            </label>
             <select
+              id="filter-category"
               value={selectedCategory}
               onChange={e => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-800 text-xs focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
             >
               <option value="">All Categories</option>
               {categories.map(c => (
@@ -137,11 +149,14 @@ export const EquipmentDiscoveryPage: React.FC = () => {
 
           {/* Availability Status Filter */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 mb-1">Availability</label>
+            <label htmlFor="filter-status" className="block text-[11px] font-semibold text-slate-600 mb-1">
+              Availability
+            </label>
             <select
+              id="filter-status"
               value={selectedStatus}
               onChange={e => setSelectedStatus(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-800 text-xs focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
             >
               <option value="">All Statuses</option>
               <option value="AVAILABLE">Available</option>
@@ -153,11 +168,14 @@ export const EquipmentDiscoveryPage: React.FC = () => {
 
           {/* Sort By */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-600 mb-1">Sort By</label>
+            <label htmlFor="filter-sort" className="block text-[11px] font-semibold text-slate-600 mb-1">
+              Sort By
+            </label>
             <select
+              id="filter-sort"
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-800 text-xs focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
             >
               <option value="name">Alphabetical (A - Z)</option>
               <option value="availability">Availability Status</option>
@@ -182,6 +200,7 @@ export const EquipmentDiscoveryPage: React.FC = () => {
       </div>
 
       {/* Equipment Cards Grid */}
+      <div aria-live="polite" aria-atomic="false">
       {loading ? (
         <div className="py-20 text-center text-slate-400 text-xs">
           Loading catalog...
@@ -207,6 +226,7 @@ export const EquipmentDiscoveryPage: React.FC = () => {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 };

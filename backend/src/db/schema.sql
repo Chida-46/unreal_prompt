@@ -192,11 +192,18 @@ CREATE TABLE IF NOT EXISTS scheduling_weight_configs (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
--- Indexes for performance and lookup speeds
+-- Indexes for performance, conflict resolution, and lookup speeds
 CREATE INDEX IF NOT EXISTS idx_equipment_dept ON equipment(department_id);
 CREATE INDEX IF NOT EXISTS idx_equipment_cat ON equipment(category_id);
+CREATE INDEX IF NOT EXISTS idx_equipment_status ON equipment(status);
 CREATE INDEX IF NOT EXISTS idx_requests_status ON booking_requests(status);
 CREATE INDEX IF NOT EXISTS idx_requests_equip ON booking_requests(equipment_id);
 CREATE INDEX IF NOT EXISTS idx_requests_student ON booking_requests(student_id);
+CREATE INDEX IF NOT EXISTS idx_requests_equip_date ON booking_requests(equipment_id, requested_date);
+CREATE INDEX IF NOT EXISTS idx_requests_conflict_group ON booking_requests(conflict_group_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_date ON bookings(scheduled_date);
+CREATE INDEX IF NOT EXISTS idx_bookings_equip_date ON bookings(equipment_id, scheduled_date);
+CREATE INDEX IF NOT EXISTS idx_bookings_student ON bookings(student_id);
+CREATE INDEX IF NOT EXISTS idx_maintenance_equip_status ON maintenance_schedules(equipment_id, status);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_alloc_conflict ON allocation_recommendations(conflict_group_id);

@@ -27,6 +27,9 @@ export const createBookingRequestSchema = z.object({
   }),
   technicalRequirements: z.string().optional(),
   accessReason: z.string().min(5, 'Access reason must be at least 5 characters'),
+}).refine(data => data.startTime < data.endTime, {
+  message: 'End time must be strictly after start time',
+  path: ['endTime'],
 });
 
 export const facultyDecisionSchema = z.object({

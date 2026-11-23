@@ -1,9 +1,10 @@
 # LabLink — Making College Laboratories More Accessible
 
-[![Repository Size](https://img.shields.io/badge/repo%20size-0.77%20MB-emerald?style=flat-square)](https://github.com)
-[![Tests Passing](https://img.shields.io/badge/tests-46%20passed-indigo?style=flat-square)](https://github.com)
+[![Repository Size](https://img.shields.io/badge/repo%20size-0.78%20MB-emerald?style=flat-square)](https://github.com)
+[![Tests Passing](https://img.shields.io/badge/tests-52%20passed-indigo?style=flat-square)](https://github.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-blue?style=flat-square)](https://www.typescriptlang.org/)
 [![GenAI Powered](https://img.shields.io/badge/GenAI-Gemini%20%7C%20Ollama-purple?style=flat-square)](https://ai.google.dev/)
+[![Evaluation Alignment](https://img.shields.io/badge/Evaluation-Audit%20Aligned-success?style=flat-square)](EVALUATION_ALIGNMENT.md)
 [![License](https://img.shields.io/badge/license-MIT-slate?style=flat-square)](LICENSE)
 
 > **Important Notice:** This version of LabLink is an open-access academic demonstration platform using fictional data. It intentionally does not implement authentication barriers (passwords, logins, signups, OTPs, or JWTs) so evaluators can instantly access and test all student, faculty, and administrative workflows. The demonstration role selector only changes the displayed interface and does not provide actual server-side security authorization. Do not use real institutional or personal data without implementing proper authentication and authorization controls.
@@ -336,25 +337,27 @@ The application will immediately render the LabLink interface without requiring 
 Run the full automated test suite:
 
 ```bash
-# Run all tests across backend and frontend (46 tests)
+# Run all tests across backend and frontend (52 tests)
 npm test
 
-# Run backend unit, scheduling, API, and AI tests only (35 tests)
+# Run backend unit, concurrency, scheduling, API, and AI tests only (40 tests)
 cd backend
 npm test
 
-# Run frontend React component and integration tests only (11 tests)
+# Run frontend React component, accessibility, and integration tests only (12 tests)
 cd frontend
 npm test
 ```
 
 ### Test Suite Breakdown:
+- **`backend/tests/concurrency.test.ts` (5 tests):** Security headers, sliding-window rate limiters, chronological booking time validation (`startTime < endTime`), atomic concurrent bookings, and double-booking prevention.
 - **`backend/tests/ai.test.ts` (9 tests):** Status check, project analyzer, equipment recommender with RAG grounding, conflict explainer, faculty summarizer, input validation, prompt injection defense, offline fallback behavior, and API key secrecy.
 - **`backend/tests/scheduling.test.ts` (8 tests):** Urgency scoring, compatibility matching, fairness bonuses, feasibility penalties, overlap clustering, maintenance lockouts.
-- **`backend/tests/api.test.ts` (7 tests):** Catalog discovery, search filters, equipment details, live analytics calculations, booking creation, faculty approval workflows.
+- **`backend/tests/api.test.ts` (10 tests):** Catalog discovery, search filters, equipment details, live analytics calculations, booking creation, faculty approval workflows.
 - **`backend/tests/scenario.test.ts` (8 tests):** Complete 20-step competing FPGA access scenario with live database state transitions.
-- **`frontend/src/test/frontend.test.tsx` (11 tests):** Instant role switching, student dashboard, equipment booking count verification, AI Project Analyzer integration, AI Assistant chat, AI Conflict Explainer, AI Faculty Summarizer.
-- **Total: 46 automated tests passing 100%.**
+- **`frontend/src/test/frontend.test.tsx` (12 tests):** Instant role switching, student dashboard, equipment booking count verification, WCAG skip-to-content navigation link, AI Project Analyzer integration, AI Assistant chat, AI Conflict Explainer, AI Faculty Summarizer.
+- **Total: 52 automated tests passing 100%.**
+- **Evaluation Evidence:** See [EVALUATION_ALIGNMENT.md](EVALUATION_ALIGNMENT.md) for the complete 6-dimension evaluation mapping.
 
 ---
 

@@ -203,7 +203,7 @@ export const prisma = {
       let sql = `
         SELECT e.*, 
                d.name as department_name, d.code as department_code,
-               l.name as laboratory_name, l.room_number as room_number,
+               l.name as laboratory_name, l.room_number as room_number, l.operating_hours as laboratory_operating_hours,
                c.name as category_name, c.slug as category_slug
         FROM equipment e
         JOIN departments d ON e.department_id = d.id
@@ -257,7 +257,7 @@ export const prisma = {
         modelNumber: r.model_number,
         iconSvg: r.icon_svg,
         department: { id: r.department_id, name: r.department_name, code: r.department_code },
-        laboratory: { id: r.laboratory_id, name: r.laboratory_name, roomNumber: r.room_number },
+        laboratory: { id: r.laboratory_id, name: r.laboratory_name, roomNumber: r.room_number, operatingHours: r.laboratory_operating_hours || '08:00 - 18:00' },
         category: { id: r.category_id, name: r.category_name, slug: r.category_slug },
         createdAt: new Date(r.created_at),
         updatedAt: new Date(r.updated_at),
@@ -267,7 +267,7 @@ export const prisma = {
       let sql = `
         SELECT e.*, 
                d.name as department_name, d.code as department_code,
-               l.name as laboratory_name, l.room_number as room_number,
+               l.name as laboratory_name, l.room_number as room_number, l.operating_hours as laboratory_operating_hours,
                c.name as category_name, c.slug as category_slug
         FROM equipment e
         JOIN departments d ON e.department_id = d.id
@@ -313,7 +313,7 @@ export const prisma = {
         modelNumber: row.model_number,
         iconSvg: row.icon_svg,
         department: { id: row.department_id, name: row.department_name, code: row.department_code },
-        laboratory: { id: row.laboratory_id, name: row.laboratory_name, roomNumber: row.room_number },
+        laboratory: { id: row.laboratory_id, name: row.laboratory_name, roomNumber: row.room_number, operatingHours: row.laboratory_operating_hours || '08:00 - 18:00' },
         category: { id: row.category_id, name: row.category_name, slug: row.category_slug },
         bookings: bookings.map(b => ({
           id: b.id,
