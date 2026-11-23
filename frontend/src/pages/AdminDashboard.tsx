@@ -79,9 +79,9 @@ export const AdminDashboard: React.FC = () => {
           color="indigo"
         />
         <StatCard
-          title="Active Reservations"
+          title="Equipment Booked"
           value={summary?.activeBookings || 0}
-          sublabel="Currently scheduled slots"
+          sublabel="Active campus reservations"
           icon={Calendar}
           color="emerald"
         />

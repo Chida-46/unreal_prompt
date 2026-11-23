@@ -1,27 +1,56 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { RoleProvider } from './context/RoleContext';
+import { RoleProvider, useRole } from './context/RoleContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { Navbar } from './components/Navbar';
 import { Banner } from './components/Banner';
+import { RoleDashboard } from './components/RoleDashboard';
 
 // Pages
 import { LandingPage } from './pages/LandingPage';
-import { StudentDashboard } from './pages/StudentDashboard';
 import { EquipmentDiscoveryPage } from './pages/EquipmentDiscoveryPage';
 import { EquipmentDetailsPage } from './pages/EquipmentDetailsPage';
 import { BookingRequestPage } from './pages/BookingRequestPage';
 import { MyBookingsPage } from './pages/MyBookingsPage';
 import { ProjectManagementPage } from './pages/ProjectManagementPage';
 import { AISchedulingPage } from './pages/AISchedulingPage';
-import { FacultyDashboard } from './pages/FacultyDashboard';
 import { FacultyApprovalsPage } from './pages/FacultyApprovalsPage';
-import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminEquipmentPage } from './pages/AdminEquipmentPage';
 import { AdminDepartmentsPage } from './pages/AdminDepartmentsPage';
 import { AdminMaintenancePage } from './pages/AdminMaintenancePage';
 import { AdminAnalyticsPage } from './pages/AdminAnalyticsPage';
 import { AdminSettingsPage } from './pages/AdminSettingsPage';
+
+// Route wrappers that ensure role synchronization and instant dashboard rendering
+const StudentRoute: React.FC = () => {
+  const { role, setRole } = useRole();
+  useEffect(() => {
+    if (role !== 'STUDENT') {
+      setRole('STUDENT');
+    }
+  }, [role, setRole]);
+  return <RoleDashboard />;
+};
+
+const FacultyRoute: React.FC = () => {
+  const { role, setRole } = useRole();
+  useEffect(() => {
+    if (role !== 'FACULTY') {
+      setRole('FACULTY');
+    }
+  }, [role, setRole]);
+  return <RoleDashboard />;
+};
+
+const AdminRoute: React.FC = () => {
+  const { role, setRole } = useRole();
+  useEffect(() => {
+    if (role !== 'ADMIN') {
+      setRole('ADMIN');
+    }
+  }, [role, setRole]);
+  return <RoleDashboard />;
+};
 
 export const App: React.FC = () => {
   return (
@@ -35,7 +64,8 @@ export const App: React.FC = () => {
               <Routes>
                 {/* Public & Student Routes */}
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/student" element={<StudentDashboard />} />
+                <Route path="/dashboard" element={<RoleDashboard />} />
+                <Route path="/student" element={<StudentRoute />} />
                 <Route path="/equipment" element={<EquipmentDiscoveryPage />} />
                 <Route path="/equipment/:id" element={<EquipmentDetailsPage />} />
                 <Route path="/book" element={<BookingRequestPage />} />
@@ -45,11 +75,11 @@ export const App: React.FC = () => {
                 <Route path="/ai-recommendations" element={<AISchedulingPage />} />
 
                 {/* Faculty Routes */}
-                <Route path="/faculty" element={<FacultyDashboard />} />
+                <Route path="/faculty" element={<FacultyRoute />} />
                 <Route path="/faculty/approvals" element={<FacultyApprovalsPage />} />
 
                 {/* Administrator Routes */}
-                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin" element={<AdminRoute />} />
                 <Route path="/admin/equipment" element={<AdminEquipmentPage />} />
                 <Route path="/admin/departments" element={<AdminDepartmentsPage />} />
                 <Route path="/admin/maintenance" element={<AdminMaintenancePage />} />

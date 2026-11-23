@@ -322,55 +322,12 @@ export function seed() {
     VALUES ('default-config', 0.35, 0.25, 0.15, 0.15, 0.10)
   `).run();
 
-  // 8. Seed sample active booking to show realistic calendar occupancy
-  const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-  const insertReq = db.prepare(`
-    INSERT INTO booking_requests (
-      id, project_id, equipment_id, student_id, requested_date,
-      start_time, end_time, duration_minutes, project_deadline,
-      technical_requirements, access_reason, status, priority_score
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-
-  insertReq.run(
-    'req-sample-approved',
-    'proj-health-patch',
-    'eq-scope-01',
-    'student-4',
-    tomorrowStr,
-    '14:00',
-    '17:00',
-    180,
-    new Date(Date.now() + 18 * 24 * 60 * 60 * 1000).toISOString(),
-    'Requires low-noise analog probe calibration for ECG signal noise reduction.',
-    'Calibrating biopotential front-end operational amplifier noise floor.',
-    'APPROVED',
-    78.5
-  );
-
-  db.prepare(`
-    INSERT INTO bookings (id, booking_request_id, equipment_id, student_id, scheduled_date, start_time, end_time, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    'book-sample-01',
-    'req-sample-approved',
-    'eq-scope-01',
-    'student-4',
-    tomorrowStr,
-    '14:00',
-    '17:00',
-    'ACTIVE'
-  );
-
-  // 9. Notifications
+  // 8. Notifications
   const insertNotif = db.prepare(`
     INSERT INTO notifications (id, user_id, title, message, type, link_url, is_read)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
-  insertNotif.run('notif-1', 'student-4', 'Booking Approved', 'Your request for Digital Storage Oscilloscope on ' + tomorrowStr + ' (14:00-17:00) has been approved by Prof. Ananya Iyer.', 'APPROVAL', '/bookings', 0);
-  insertNotif.run('notif-2', 'student-1', 'Welcome to LabLink', 'Discover and request specialized lab resources across 5 engineering departments.', 'SUBMISSION', '/equipment', 1);
+  insertNotif.run('notif-1', 'student-1', 'Welcome to LabLink', 'Discover and request specialized lab resources across 5 engineering departments.', 'SUBMISSION', '/equipment', 0);
 
   // 10. Audit Log
   db.prepare(`

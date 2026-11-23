@@ -21,10 +21,31 @@ const defaultStudent: User = {
   department: { id: 'dept-cse', name: 'Computer Science and Engineering' },
 };
 
+const defaultFaculty: User = {
+  id: 'faculty-1',
+  name: 'Dr. Vikram Sen',
+  email: 'vikram.sen@campus.edu',
+  role: 'FACULTY',
+  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DrSen',
+  departmentId: 'dept-cse',
+  department: { id: 'dept-cse', name: 'Computer Science and Engineering' },
+};
+
+const defaultAdmin: User = {
+  id: 'admin-1',
+  name: 'Campus Facilities Admin',
+  email: 'admin@campus.edu',
+  role: 'ADMIN',
+  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin',
+  departmentId: undefined,
+};
+
+const defaultUsers: User[] = [defaultStudent, defaultFaculty, defaultAdmin];
+
 const RoleContext = createContext<RoleContextType>({
   role: 'STUDENT',
   currentUser: defaultStudent,
-  allUsers: [defaultStudent],
+  allUsers: defaultUsers,
   setRole: () => {},
   setCurrentUser: () => {},
   switchUserById: () => {},
@@ -37,20 +58,24 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [currentUser, setCurrentUserState] = useState<User | null>(() => {
-    const saved = localStorage.getItem('lablink_demo_user');
-    if (saved) {
-      try { return JSON.parse(saved); } catch {}
+    const savedRole = (localStorage.getItem('lablink_demo_role') as Role) || 'STUDENT';
+    const savedUser = localStorage.getItem('lablink_demo_user');
+    if (savedUser) {
+      try {
+        const parsed = JSON.parse(savedUser);
+        if (parsed && parsed.role === savedRole) return parsed;
+      } catch {}
     }
-    return defaultStudent;
+    return defaultUsers.find(u => u.role === savedRole) || defaultStudent;
   });
 
-  const [allUsers, setAllUsers] = useState<User[]>([defaultStudent]);
+  const [allUsers, setAllUsers] = useState<User[]>(defaultUsers);
 
   useEffect(() => {
     // Fetch all demo profiles from backend
     api.getUsers()
       .then(users => {
-        if (users.length > 0) {
+        if (users && users.length > 0) {
           setAllUsers(users);
           // If no current user or current user does not match active role, select first of that role
           if (!currentUser || currentUser.role !== role) {
@@ -63,14 +88,14 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .catch(err => {
         console.warn('Could not load remote demo users, using fallback defaults', err);
       });
-  }, []);
+  }, [role]);
 
   const setRole = (newRole: Role) => {
     setRoleState(newRole);
     localStorage.setItem('lablink_demo_role', newRole);
 
     // Pick first user matching new role
-    const matching = allUsers.find(u => u.role === newRole);
+    const matching = allUsers.find(u => u.role === newRole) || defaultUsers.find(u => u.role === newRole);
     if (matching) {
       setCurrentUserState(matching);
       localStorage.setItem('lablink_demo_user', JSON.stringify(matching));

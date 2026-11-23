@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRole } from '../context/RoleContext';
 import { api } from '../services/api';
-import { Equipment, BookingRequest, Project } from '../types';
+import { Equipment, BookingRequest, Booking, Project } from '../types';
 import { StatCard } from '../components/StatCard';
 import { StatusBadge } from '../components/StatusBadge';
 import {
@@ -20,6 +20,7 @@ import { Link } from 'react-router-dom';
 export const StudentDashboard: React.FC = () => {
   const { currentUser } = useRole();
   const [requests, setRequests] = useState<BookingRequest[]>([]);
+  const [activeBookingsList, setActiveBookingsList] = useState<Booking[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [availableCount, setAvailableCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -30,11 +31,13 @@ export const StudentDashboard: React.FC = () => {
 
     Promise.all([
       api.getBookingRequests({ studentId: currentUser.id }),
+      api.getBookings({ studentId: currentUser.id, status: 'ACTIVE' }),
       api.getProjects({ studentId: currentUser.id }),
       api.getEquipment({ status: 'AVAILABLE' }),
     ])
-      .then(([reqs, projs, equips]) => {
+      .then(([reqs, bks, projs, equips]) => {
         setRequests(reqs);
+        setActiveBookingsList(bks);
         setProjects(projs);
         setAvailableCount(equips.length);
       })
@@ -42,9 +45,17 @@ export const StudentDashboard: React.FC = () => {
       .finally(() => setLoading(false));
   }, [currentUser]);
 
-  const activeBookings = requests.filter(r => r.status === 'APPROVED');
-  const pendingRequests = requests.filter(r => ['PENDING', 'CONFLICT_DETECTED', 'ALTERNATIVE_SUGGESTED'].includes(r.status));
-  const conflictingRequests = requests.filter(r => r.status === 'CONFLICT_DETECTED' || r.status === 'ALTERNATIVE_SUGGESTED');
+  // Active confirmed bookings from database (status = 'ACTIVE')
+  // Strictly excludes cancelled, rejected, and pending bookings
+  const safeRequests = Array.isArray(requests) ? requests : [];
+  const safeBookings = Array.isArray(activeBookingsList) ? activeBookingsList : [];
+
+  const activeBookingsCount = safeBookings.length > 0
+    ? safeBookings.filter(b => b.status === 'ACTIVE').length
+    : safeRequests.filter(r => r.status === 'APPROVED').length;
+
+  const pendingRequests = safeRequests.filter(r => ['PENDING', 'CONFLICT_DETECTED', 'ALTERNATIVE_SUGGESTED'].includes(r.status));
+  const conflictingRequests = safeRequests.filter(r => r.status === 'CONFLICT_DETECTED' || r.status === 'ALTERNATIVE_SUGGESTED');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -114,9 +125,9 @@ export const StudentDashboard: React.FC = () => {
       {/* Top Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Active Approved Slots"
-          value={activeBookings.length}
-          sublabel="Ready for lab access"
+          title="Equipment Booked"
+          value={activeBookingsCount}
+          sublabel={activeBookingsCount === 1 ? '1 active confirmed reservation' : `${activeBookingsCount} active confirmed reservations`}
           icon={Calendar}
           color="emerald"
         />
@@ -178,16 +189,16 @@ export const StudentDashboard: React.FC = () => {
                   <div key={req.id} className="p-4 hover:bg-slate-50/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 text-sm">{req.equipment.name}</span>
+                        <span className="font-bold text-slate-900 text-sm">{req.equipment?.name || 'Equipment'}</span>
                         <StatusBadge status={req.status} size="sm" />
                       </div>
                       <p className="text-slate-600 mt-1">
-                        Project: <strong className="text-slate-800">{req.project.title}</strong>
+                        Project: <strong className="text-slate-800">{req.project?.title || 'Project'}</strong>
                       </p>
                       <div className="flex items-center gap-3 mt-1.5 text-slate-500 text-[11px]">
                         <span>Date: <strong>{new Date(req.requestedDate).toISOString().split('T')[0]}</strong></span>
                         <span>Time: <strong>{req.startTime} - {req.endTime}</strong></span>
-                        <span>Dept: <strong>{req.equipment.department.name}</strong></span>
+                        <span>Dept: <strong>{req.equipment?.department?.name || 'Department'}</strong></span>
                       </div>
                     </div>
 

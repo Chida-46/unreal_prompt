@@ -16,6 +16,23 @@ router.post('/request', async (req, res, next) => {
   }
 });
 
+// GET /api/bookings - List bookings (with optional studentId or status filters)
+router.get('/', async (req, res, next) => {
+  try {
+    const { studentId, status, equipmentId } = req.query;
+    const bookings = prisma.booking.findMany({
+      where: {
+        studentId: studentId as string,
+        status: status as string,
+        equipmentId: equipmentId as string,
+      },
+    });
+    res.json(bookings);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/bookings/requests - List requests (with optional studentId or status filters)
 router.get('/requests', async (req, res, next) => {
   try {

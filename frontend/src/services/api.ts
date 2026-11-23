@@ -152,6 +152,16 @@ export const api = {
     return res.json();
   },
 
+  async getBookings(params?: { studentId?: string; status?: string; equipmentId?: string }): Promise<Booking[]> {
+    const query = new URLSearchParams();
+    if (params?.studentId) query.append('studentId', params.studentId);
+    if (params?.status) query.append('status', params.status);
+    if (params?.equipmentId) query.append('equipmentId', params.equipmentId);
+    const res = await fetch(`${API_BASE}/bookings?${query.toString()}`);
+    if (!res.ok) throw new Error('Failed to fetch bookings');
+    return res.json();
+  },
+
   async cancelBookingRequest(requestId: string, studentId: string): Promise<any> {
     const res = await fetch(`${API_BASE}/bookings/requests/${requestId}/cancel`, {
       method: 'POST',

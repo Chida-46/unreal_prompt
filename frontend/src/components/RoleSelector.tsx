@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
 import { Role } from '../types';
 import { GraduationCap, Briefcase, ShieldCheck, ChevronDown, Check, UserCheck } from 'lucide-react';
@@ -6,14 +7,16 @@ import { GraduationCap, Briefcase, ShieldCheck, ChevronDown, Check, UserCheck } 
 export const RoleSelector: React.FC = () => {
   const { role, currentUser, allUsers, setRole, switchUserById } = useRole();
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const roles: { id: Role; label: string; icon: any; color: string; desc: string }[] = [
+  const roles: { id: Role; label: string; icon: any; color: string; desc: string; targetPath: string }[] = [
     {
       id: 'STUDENT',
       label: 'Student',
       icon: GraduationCap,
       color: 'bg-blue-100 text-blue-700 border-blue-200',
       desc: 'Browse catalog, request equipment & view AI suggestions',
+      targetPath: '/student',
     },
     {
       id: 'FACULTY',
@@ -21,6 +24,7 @@ export const RoleSelector: React.FC = () => {
       icon: Briefcase,
       color: 'bg-emerald-100 text-emerald-700 border-emerald-200',
       desc: 'Review project requests, verify AI priority scores & approve bookings',
+      targetPath: '/faculty',
     },
     {
       id: 'ADMIN',
@@ -28,6 +32,7 @@ export const RoleSelector: React.FC = () => {
       icon: ShieldCheck,
       color: 'bg-purple-100 text-purple-700 border-purple-200',
       desc: 'Manage equipment, configure scheduling weights & inspect analytics',
+      targetPath: '/admin',
     },
   ];
 
@@ -35,6 +40,12 @@ export const RoleSelector: React.FC = () => {
   const Icon = currentRoleConfig.icon;
 
   const usersForActiveRole = allUsers.filter(u => u.role === role);
+
+  const handleRoleSelect = (selectedRole: Role, targetPath: string) => {
+    setRole(selectedRole);
+    setIsOpen(false);
+    navigate(targetPath);
+  };
 
   return (
     <div className="relative">
@@ -80,10 +91,7 @@ export const RoleSelector: React.FC = () => {
                 return (
                   <button
                     key={r.id}
-                    onClick={() => {
-                      setRole(r.id);
-                      setIsOpen(false);
-                    }}
+                    onClick={() => handleRoleSelect(r.id, r.targetPath)}
                     className={`w-full flex items-start gap-3 p-2.5 rounded-lg text-left transition ${
                       isSelected
                         ? 'bg-indigo-50/70 border border-indigo-200/80 text-indigo-950'

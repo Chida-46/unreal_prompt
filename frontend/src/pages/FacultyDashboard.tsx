@@ -25,7 +25,7 @@ export const FacultyDashboard: React.FC = () => {
   const fetchFacultyData = () => {
     setLoading(true);
     api.getFacultyRequests()
-      .then(setRequests)
+      .then(data => setRequests(Array.isArray(data) ? data : []))
       .catch(console.error)
       .finally(() => setLoading(false));
   };
@@ -34,8 +34,9 @@ export const FacultyDashboard: React.FC = () => {
     fetchFacultyData();
   }, [currentUser]);
 
-  const conflictsCount = requests.filter(r => r.status === 'CONFLICT_DETECTED' || r.status === 'ALTERNATIVE_SUGGESTED').length;
-  const urgentCount = requests.filter(r => {
+  const safeRequests = Array.isArray(requests) ? requests : [];
+  const conflictsCount = safeRequests.filter(r => r.status === 'CONFLICT_DETECTED' || r.status === 'ALTERNATIVE_SUGGESTED').length;
+  const urgentCount = safeRequests.filter(r => {
     const diff = (new Date(r.projectDeadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
     return diff <= 4;
   }).length;

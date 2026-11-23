@@ -30,7 +30,28 @@ export async function createBookingRequest(input: CreateBookingRequestInput) {
     throw new Error('Equipment not found');
   }
 
-  // 2. Fetch existing active bookings for this equipment
+  // 2. Prevent duplicate submissions:
+  // Check if this student already has an active or pending request for the same equipment and overlapping slot
+  const existingForStudent = prisma.bookingRequest.findMany({
+    where: {
+      studentId: input.studentId,
+      equipmentId: input.equipmentId,
+    },
+  });
+
+  const duplicateRequest = existingForStudent.find(r =>
+    ['PENDING', 'APPROVED', 'CONFLICT_DETECTED', 'ALTERNATIVE_SUGGESTED'].includes(r.status) &&
+    isSameDay(r.requestedDate, reqDate) &&
+    timeOverlaps(input.startTime, input.endTime, r.startTime, r.endTime)
+  );
+
+  if (duplicateRequest) {
+    throw new Error(
+      `Duplicate request: You already have an active or pending booking for this equipment during this time slot.`
+    );
+  }
+
+  // 3. Fetch existing active bookings for this equipment
   const activeBookings = prisma.booking.findMany({
     where: { equipmentId: input.equipmentId, status: 'ACTIVE' },
   });
@@ -92,6 +113,9 @@ export async function createBookingRequest(input: CreateBookingRequestInput) {
         { status: 'CONFLICT_DETECTED', conflictGroupId }
       );
     }
+  } else if (!equipment.requiresApproval) {
+    // Equipment does not require faculty approval and has no conflicts -> Auto-approve!
+    status = 'APPROVED';
   }
 
   // 5. Create new booking request
@@ -110,6 +134,19 @@ export async function createBookingRequest(input: CreateBookingRequestInput) {
     conflictGroupId,
   });
 
+  // If auto-approved, create the corresponding active booking immediately
+  if (status === 'APPROVED' && newRequest) {
+    prisma.booking.create({
+      bookingRequestId: newRequest.id,
+      equipmentId: input.equipmentId,
+      studentId: input.studentId,
+      scheduledDate: reqDate,
+      startTime: input.startTime,
+      endTime: input.endTime,
+      status: 'ACTIVE',
+    });
+  }
+
   // 6. If conflict occurred, trigger AI Scheduling Analysis
   if (conflictGroupId) {
     await runSchedulingAnalysis(conflictGroupId);
@@ -117,13 +154,25 @@ export async function createBookingRequest(input: CreateBookingRequestInput) {
 
   // 7. Create notification for student
   const student = prisma.user.findUnique({ id: input.studentId });
+  let notifTitle = 'Booking Request Submitted';
+  let notifMsg = `Your request for ${equipment.name} on ${input.requestedDate.split('T')[0]} (${input.startTime}-${input.endTime}) has been queued for faculty review.`;
+  let notifType: any = 'SUBMISSION';
+
+  if (status === 'CONFLICT_DETECTED') {
+    notifTitle = '⚠️ Booking Conflict Detected';
+    notifMsg = `Another student also requested ${equipment.name} for an overlapping time on ${input.requestedDate.split('T')[0]}. The AI scheduling engine has analyzed both requests.`;
+    notifType = 'CONFLICT';
+  } else if (status === 'APPROVED') {
+    notifTitle = '🎉 Booking Confirmed!';
+    notifMsg = `Your booking for ${equipment.name} on ${input.requestedDate.split('T')[0]} (${input.startTime}-${input.endTime}) has been automatically confirmed.`;
+    notifType = 'APPROVAL';
+  }
+
   prisma.notification.create({
     userId: input.studentId,
-    title: status === 'CONFLICT_DETECTED' ? '⚠️ Booking Conflict Detected' : 'Booking Request Submitted',
-    message: status === 'CONFLICT_DETECTED'
-      ? `Another student also requested ${equipment.name} for an overlapping time on ${input.requestedDate.split('T')[0]}. The AI scheduling engine has analyzed both requests.`
-      : `Your request for ${equipment.name} on ${input.requestedDate.split('T')[0]} (${input.startTime}-${input.endTime}) has been queued for faculty review.`,
-    type: status === 'CONFLICT_DETECTED' ? 'CONFLICT' : 'SUBMISSION',
+    title: notifTitle,
+    message: notifMsg,
+    type: notifType,
     linkUrl: '/my-bookings',
   });
 

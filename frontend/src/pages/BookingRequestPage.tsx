@@ -80,6 +80,7 @@ export const BookingRequestPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setError(null);
 
     if (!selectedEquipmentId) {
@@ -118,6 +119,12 @@ export const BookingRequestPage: React.FC = () => {
           state: {
             highlightConflict: true,
             message: 'Conflict detected! Competing requests have been evaluated by the AI scheduling engine.',
+          },
+        });
+      } else if (created.status === 'APPROVED') {
+        navigate('/my-bookings', {
+          state: {
+            successMessage: '🎉 Booking confirmed automatically! Your reservation is active.',
           },
         });
       } else {
