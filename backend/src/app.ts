@@ -21,23 +21,28 @@ export const app = express();
 // Apply enterprise security headers
 app.use(securityHeaders);
 
-// CORS configuration supporting local dev and configured client origin
+// CORS configuration supporting local dev, Vercel deployments, and configured client origin
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'http://127.0.0.1:5173',
 ];
 if (process.env.CLIENT_URL) {
-  allowedOrigins.push(process.env.CLIENT_URL.trim());
+  process.env.CLIENT_URL.split(',').forEach(u => allowedOrigins.push(u.trim()));
 }
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow non-browser requests (e.g., automated tests, curl, postman) or matching origins
-    if (!origin || allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
+    // Allow requests without origin (curl, server-to-server, tests), allowed origins, localhost, and Vercel domains
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      origin.startsWith('http://localhost:') ||
+      origin.endsWith('.vercel.app')
+    ) {
       callback(null, true);
     } else {
-      callback(null, true); // Permissive in demo mode, but sends specific origin header
+      callback(null, true); // Permissive in demo mode, but passes dynamic origin header
     }
   },
   credentials: true,

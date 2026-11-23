@@ -2,7 +2,73 @@
 
 This guide covers deployment instructions for running LabLink in production across multiple environments.
 
-Because LabLink combines a high-performance Express backend with a compiled React SPA, it supports **unified single-port deployment** where Express serves both the REST API and the static frontend SPA bundle.
+---
+
+## 🌟 Recommended Dual-Cloud Architecture: Vercel (Frontend) + Render (Backend)
+
+Deploying the **React frontend on Vercel** and the **Express/SQLite backend on Render** is the gold standard for full-stack web applications. Vercel provides instant global CDN delivery for the UI, while Render runs the Node.js server with persistent database storage.
+
+### Part 1: Deploy Backend on Render
+
+1. Log in to your [Render Dashboard](https://dashboard.render.com/).
+2. Click **New +** $\rightarrow$ **Web Service**.
+3. Connect your repository: `https://github.com/Chida-46/unreal_prompt`.
+4. Configure the service settings:
+   - **Name:** `lablink-backend` (or your choice)
+   - **Region:** Any region (e.g., `Oregon (US West)` or `Singapore`)
+   - **Branch:** `main`
+   - **Root Directory:** `backend`
+   - **Runtime:** `Node`
+   - **Build Command:**
+     ```bash
+     npm install && npm run build && npm run seed
+     ```
+   - **Start Command:**
+     ```bash
+     npm start
+     ```
+   - **Plan:** `Free`
+5. In **Environment Variables**, add:
+   | Key | Value | Description |
+   |---|---|---|
+   | `NODE_ENV` | `production` | Enables production mode |
+   | `PORT` | `10000` | Port assigned by Render |
+   | `AI_PROVIDER` | `gemini` | Large language model provider |
+   | `GEMINI_API_KEY` | *(your-key)* | Free key from [Google AI Studio](https://aistudio.google.com/) |
+   | `GEMINI_MODEL` | `gemini-1.5-flash` | Fast, free-tier model |
+6. Click **Create Web Service**.
+7. Once deployed, copy your backend URL:
+   > Example: `https://lablink-backend-xxxx.onrender.com`
+
+---
+
+### Part 2: Deploy Frontend on Vercel
+
+1. Log in to your [Vercel Dashboard](https://vercel.com/dashboard).
+2. Click **Add New...** $\rightarrow$ **Project**.
+3. Import your GitHub repository: `Chida-46/unreal_prompt`.
+4. Configure Project Settings:
+   - **Framework Preset:** `Vite`
+   - **Root Directory:** Click `Edit` and select `frontend` (or leave at root — `vercel.json` supports both).
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+5. Expand **Environment Variables** and add:
+   | Key | Value |
+   |---|---|
+   | `VITE_API_URL` | `https://lablink-backend-xxxx.onrender.com` *(Paste your Render backend URL from Part 1)* |
+6. Click **Deploy**.
+7. In ~30 seconds, Vercel will give you a public URL:
+   > Example: `https://unreal-prompt.vercel.app`
+
+---
+
+### Part 3: (Optional) Link Frontend URL in Render Backend
+
+To ensure strict origin headers:
+1. Go back to Render $\rightarrow$ `lablink-backend` $\rightarrow$ **Environment**.
+2. Add:
+   - `CLIENT_URL` = `https://unreal-prompt.vercel.app`
+3. Click **Save Changes**. Render will automatically redeploy with the updated CORS configuration.
 
 ---
 
